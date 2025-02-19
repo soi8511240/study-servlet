@@ -41,5 +41,9 @@ public class ConnectionTest {
         return stmt;
     }
 
+    public void closeConnection(Statement stmt) throws Exception{
+        stmt.close();
+    }
+
 
 }

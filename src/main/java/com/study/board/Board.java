@@ -1,44 +1,24 @@
 package com.study.board;
 
-import com.study.connection.ConnectionTest;
 import com.study.model.BoardModel;
+import com.study.service.board.BoardService;
 
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
 
+    BoardService boardService = new BoardService();
 
     public List<BoardModel> getBoardList() throws Exception {
-        List<BoardModel> boardList = new ArrayList<>();
+        return boardService.getBoardList(0);
+    }
 
-        ConnectionTest connectionTest = new ConnectionTest();
-        Statement stmt = connectionTest.getStatement();
+    public List<BoardModel> getBoardList(int key) throws Exception {
+        return boardService.getBoardList(key);
+    }
 
-        String query = "SELECT id, title, writer FROM Board";
-        ResultSet rs = stmt.executeQuery(query);
-
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            String title = rs.getString("title");
-            String writer = rs.getString("writer");
-
-            // Board 객체 생성
-            BoardModel board = new BoardModel();
-            board.setId(id);
-            board.setTitle(title);
-            board.setWriter(writer);
-
-            // 리스트에 Board 객체 추가
-            boardList.add(board);
-        }
-
-        rs.close();
-        stmt.close();
-
-        return boardList;
+    public List<BoardModel> getBoardList(String keyword) throws Exception {
+        return boardService.getBoardList(keyword);
     }
 
 }

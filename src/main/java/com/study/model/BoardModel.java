@@ -12,8 +12,8 @@ public class BoardModel {
     private String title;
     private String content;
     private String writer;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
     private int viewCount;
-    private LocalDateTime deletedAt;
+    private String deletedAt;
 }

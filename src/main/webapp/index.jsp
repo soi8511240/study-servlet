@@ -6,32 +6,50 @@
 <html>
 <head>
     <title>JSP - Hello World</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+*{
+    padding: 0;
+    margin: 0;
+}
+.wrap{
+    width: 1024px;
+    margin: 0 auto;
+}
+table{
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 1px solid #666;
+}
+th{
+    border-bottom: 1px solid #666;
+    padding: 10px;
+}
+td{
+    height: 40px;
+    font-size: 14px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+a{
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: underline;
+}
+
+    </style>
 </head>
 <body>
-<h1><%= "Hello World!" %>
-</h1>
-<br/>
-<a href="hello-servlet">Hello Servlet</a>
+<div class="wrap">
+        <%
+            response.sendRedirect("/board/list.jsp?keyword=");
+        %>
 
-<ul>
-<%
-    Board board = new Board();
+</div>
 
-    List<BoardModel> boardList = board.getBoardList();
-
-    // boardList가 null이 아닌 경우 리스트 출력
-    if (boardList != null) {
-        for (BoardModel boardItem : boardList) {
-            out.println("<li>" + boardItem.getId() + "</li>");
-            out.println("<li><a href=/boardDetail/"+ boardItem.getId() +">" + boardItem.getTitle() + "</a></li>");
-            out.println("<li>" + boardItem.getContent() + "</li>");
-        }
-    } else {
-        out.println("<p>No items found.</p>");
-    }
-
-%>
-    </ul>
 
 </body>
 </html>
