@@ -2,11 +2,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.study.model.BoardModel" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<html>
-<head>
-    <title>Title</title>
-</head>
-<body>
+
+<jsp:include page="/common/header.jsp" />
 <%
     int key = Integer.parseInt(request.getParameter("key"));
 
@@ -19,7 +16,7 @@
     }
 %>
 <%=key%>
-<table>
+<table class="table-horizontal">
 <%
     // boardList가 null이 아닌 경우 리스트 출력
     if (boardList != null) {
@@ -37,5 +34,5 @@
     }
 %>
 </table>
-</body>
-</html>
+
+<jsp:include page="/common/footer.jsp" />

@@ -17,8 +17,8 @@ public class Board {
         return boardService.getBoardList(key);
     }
 
-    public List<BoardModel> getBoardList(String keyword) throws Exception {
-        return boardService.getBoardList(keyword);
+    public List<BoardModel> getBoardList(String keyword, String StartDt, String endDt) throws Exception {
+        return boardService.getBoardList(keyword, StartDt, endDt);
     }
 
 }

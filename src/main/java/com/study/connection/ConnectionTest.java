@@ -1,5 +1,7 @@
 package com.study.connection;
 
+import com.study.Constants;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -7,19 +9,15 @@ import java.sql.Statement;
 
 public class ConnectionTest {
 
-    static final String DB_URL = "jdbc:mysql://localhost:3306/ebrainsoft_study";
-    static final String USER = "ebsoft";
-    static final String PASS = "ebsoft";
+    Connection conn;
+    Statement stmt;
 
     public Connection getConnection() throws Exception{
-
-        Connection conn = null;
-        Statement stmt = null;
 
         try {
             //STEP 2: Register JDBC driver
             Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            conn = DriverManager.getConnection(Constants.DB_URL, Constants.DB_USER, Constants.DB_PASS);
 
         } catch (SQLException ex) {
             // handle any errors
@@ -32,7 +30,6 @@ public class ConnectionTest {
     }
 
     public Statement getStatement() throws Exception{
-        Statement stmt = null;
         try {
             stmt = getConnection().createStatement();
         } catch (SQLException e) {

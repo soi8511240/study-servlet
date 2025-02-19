@@ -19,7 +19,7 @@
     }
 %>
 <%=key%>
-<table>
+<table class="table">
     <%
         // boardList가 null이 아닌 경우 리스트 출력
         if (boardList != null) {
