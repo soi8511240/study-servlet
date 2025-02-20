@@ -1,23 +1,37 @@
 package com.study.board;
 
 import com.study.model.BoardModel;
-import com.study.model.PagingModel;
 import com.study.service.board.BoardService;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Board {
 
     BoardService boardService = new BoardService();
 
-    public List<BoardModel> getBoardList(int key) throws Exception {
-        return boardService.getList(key);
+    public BoardModel getBoardById(String key) throws Exception {
+        return boardService.getBoardDetail(key);
     }
 
-    public List<BoardModel> getBoardList(String keyword, String StartDt, String endDt, int paginationCurrentPage) throws Exception {
-        return boardService.getList(keyword, StartDt, endDt, paginationCurrentPage);
+    static String pastKeyword;
+    public Map<String, Object> getBoardList(String keyword, String StartDt, String endDt, int paginationCurrentPage) throws Exception {
+        Map<String, Object> mapObject = new HashMap<>();
+
+        int currentPage;
+        currentPage = (pastKeyword != null && pastKeyword.equals(keyword))? paginationCurrentPage: 1;
+        System.out.println("pastKeyword : " + pastKeyword);
+        System.out.println("keyword : " + keyword);
+        System.out.println("currentPage : " + currentPage);
+        pastKeyword = keyword;
+
+        mapObject.put("boardPaging", boardService.getPaging(keyword, StartDt, endDt, currentPage));
+        mapObject.put("boardList", boardService.getList(keyword, StartDt, endDt, currentPage));
+
+
+        return mapObject;
+
+//        return boardService.getList(keyword, StartDt, endDt, paginationCurrentPage);
     }
 
 //    public Map<String, Object> getBoardList(String keyword, String StartDt, String endDt, int paginationCurrentPage) throws Exception {

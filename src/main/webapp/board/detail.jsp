@@ -5,34 +5,39 @@
 
 <jsp:include page="/common/header.jsp" />
 <%
-    int key = Integer.parseInt(request.getParameter("key"));
+    String key = request.getParameter("key");
 
     Board board = new Board();
-    List<BoardModel> boardList;
+    BoardModel boardDetail;
+
     try {
-        boardList = board.getBoardList(key);
+        boardDetail = board.getBoardById(key);
     } catch (Exception e) {
-        throw new RuntimeException(e);
+        boardDetail = null;
     }
 %>
 <%=key%>
 <table class="table-horizontal">
 <%
     // boardList가 null이 아닌 경우 리스트 출력
-    if (boardList != null) {
-        for (BoardModel boardItem : boardList) {
-            out.println("<tr><th>ID</th><td>" + boardItem.getId() + "</td></tr>");
-            out.println("<tr><th>Title</th><td>" + boardItem.getTitle() + "</td></tr>");
-            out.println("<tr><th>Content</th><td>" + boardItem.getContent() + "</td></tr>");
-            out.println("<tr><th>Writer</th><td>" + boardItem.getWriter() + "</td></tr>");
-            out.println("<tr><th>Count</th><td>" + boardItem.getViewCount() + "</td></tr>");
-            out.println("<tr><th>CreateDate</th><td>" + boardItem.getCreatedAt() + "</td></tr>");
-            out.println("<tr><th>UpdateDate</th><td>" + boardItem.getUpdatedAt() + "</td></tr>");
-        }
+    if (boardDetail == null) {
+        out.println("<p>데이터없음</p>");
     } else {
-        out.println("<p>No items found.</p>");
+        out.println("<tr><th>ID</th><td>" + boardDetail.getId() + "</td></tr>");
+        out.println("<tr><th>Title</th><td>" + boardDetail.getTitle() + "</td></tr>");
+        out.println("<tr><th>Content</th><td>" + boardDetail.getContent() + "</td></tr>");
+        out.println("<tr><th>Writer</th><td>" + boardDetail.getWriter() + "</td></tr>");
+        out.println("<tr><th>Count</th><td>" + boardDetail.getViewCount() + "</td></tr>");
+        out.println("<tr><th>CreateDate</th><td>" + boardDetail.getCreatedAt() + "</td></tr>");
+        out.println("<tr><th>UpdateDate</th><td>" + boardDetail.getUpdatedAt() + "</td></tr>");
     }
 %>
 </table>
 
+<div class="btns-foot">
+    <div class="left"></div>
+    <div class="right">
+        <a href="list.jsp" class="btn btn-default">목록</a>
+    </div>
+</div>
 <jsp:include page="/common/footer.jsp" />

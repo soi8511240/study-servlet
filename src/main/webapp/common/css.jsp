@@ -164,6 +164,7 @@ input::placeholder{
     }
     button:hover,button.active{
         text-decoration: underline;
+        font-weight: bold;
     }
 }
 

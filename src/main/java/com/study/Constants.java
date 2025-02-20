@@ -10,12 +10,4 @@ public class Constants {
     // List paging
     public static final int FETCH_COUNT = 10;
 
-//    // Article Image
-//    public static final String ROOT           = "D:/";
-//    public static final String IMAGE_PATH     = ROOT + "fb/image/";
-//    public static final String IMAGE_VIEW_URL = "/fb/article/image";
-//
-//    // Attach File
-//    public static final String ATTACH_PATH    = ROOT + "fb/attach/";
-//    public static final String ATTACH_URL     = "/fb/article/attach";
 }
