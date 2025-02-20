@@ -23,6 +23,9 @@ SELECT id, title, content, writer, view_cnt, created_at, updated_at
 FROM board
 WHERE is_hide != 1 AND id = 1;
 
+SELECT * FROM board WHERE is_hide != 1 AND created_at BETWEEN '2024-02-16' AND '2025-02-28' AND (title LIKE CONCAT('%', 'Ja', '%') OR content LIKE CONCAT('%', 'Ja', '%') OR writer LIKE CONCAT('%', 'Ja', '%')) LIMIT 0,  10;
+
+
 UPDATE board SET view_cnt = view_cnt + 1 WHERE id =1;
 
 INSERT INTO board (title, content, writer, created_at, updated_at)
