@@ -15,5 +15,4 @@ public class BoardModel {
     private String createdAt;
     private String updatedAt;
     private int viewCount;
-    private int totalCount;
 }

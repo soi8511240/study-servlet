@@ -1,11 +1,11 @@
 package com.study.service.board;
 
+import com.study.Constants;
 import com.study.connection.ConnectionTest;
 import com.study.model.BoardModel;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,26 +14,31 @@ public class BoardService {
     Statement stmt = null;
     ConnectionTest connectionTest = new ConnectionTest();
 
-    public List<BoardModel> getBoardList(int key) throws Exception {
+    public List<BoardModel> getList(int key) throws Exception {
         List<BoardModel> listBoardModel = new ArrayList<>();
 
         stmt = connectionTest.getStatement();
+
         String query;
+
         if (key == 0) {
             // 전체 리스트
 //            query = "SELECT * FROM board WHERE is_hide != 1";
-            query = "SELECT *, (SELECT COUNT(*) FROM board WHERE is_hide != 1) AS total_count " +
+            query = "SELECT * " +
                     "FROM board " +
                     "WHERE is_hide != 1;";
         }else{
             // 상세 페이지
             cntPlus(key);
-            query = "SELECT * FROM board WHERE is_hide != 1 AND id = "+ key +";"; // 숨김처리 안된거만,
+            query = "SELECT * " +
+                    "FROM board " +
+                    "WHERE is_hide != 1 " +
+                    "AND id = "+ key +";";
         }
+        System.out.println(query);
         ResultSet rs = stmt.executeQuery(query);
 
         while (rs.next()) {
-
             int id = rs.getInt("id");
             String title = rs.getString("title");
             String content = rs.getString("content");
@@ -41,7 +46,6 @@ public class BoardService {
             int view_cnt = rs.getInt("view_cnt");
             String created_at = rs.getTimestamp("created_at").toString();
             String updated_at = rs.getTimestamp("updated_at").toString();
-            int total_count = rs.getInt("total_count");
 
             // Board 객체 생성
             BoardModel board = new BoardModel();
@@ -52,7 +56,6 @@ public class BoardService {
             board.setViewCount(view_cnt);
             board.setCreatedAt(created_at);
             board.setUpdatedAt(updated_at);
-            board.setTotalCount(total_count);
 
             // 리스트에 Board 객체 추가
             listBoardModel.add(board);
@@ -65,23 +68,25 @@ public class BoardService {
     }
 
     // keyword 검색
-    public List<BoardModel> getBoardList(String keyword, String startDt, String endDt) throws Exception {
+
+    public List<BoardModel> getList(
+            String keyword, String startDt, String endDt, int paginationCurrentPage)
+            throws Exception {
         List<BoardModel> listBoardModel = new ArrayList<>();
         String query;
+        
+        // Todo: paginationCurrentPage 처리하는 함수 만들어야댐 
 
         stmt = connectionTest.getStatement();
-        if (keyword.isEmpty()) {
-            query = "SELECT *, (SELECT COUNT(*) FROM board WHERE is_hide != 1) AS total_count " +
-                    "FROM board " +
-                    "WHERE is_hide != 1;";
-        }else{
-            query = "SELECT *, (SELECT COUNT(*) FROM board WHERE is_hide != 1) AS total_count " +
-                    "FROM board WHERE is_hide != 1 AND " +
-                    "(title LIKE CONCAT('%', '" + keyword + "', '%') " +
-                    "OR content LIKE CONCAT('%', '" + keyword + "', '%') " +
-                    "OR writer LIKE CONCAT('%', '" + keyword + "', '%'));";
 
-        }
+        query = "SELECT * FROM board " +
+                "WHERE is_hide != 1 " +
+                "AND created_at BETWEEN '" + startDt + "' AND '" + endDt + "' " +
+                "AND (title LIKE CONCAT('%', '" + keyword + "', '%') OR content LIKE CONCAT('%', '" + keyword + "', '%') OR writer LIKE CONCAT('%', '" + keyword + "', '%')) " +
+                "LIMIT " + Constants.FETCH_COUNT * (paginationCurrentPage-1) + ", " +
+                " " + Constants.FETCH_COUNT + ";";
+
+        System.out.println(query);
 
         ResultSet rs = stmt.executeQuery(query);
 
@@ -93,7 +98,6 @@ public class BoardService {
             int view_cnt = rs.getInt("view_cnt");
             String created_at = rs.getTimestamp("created_at").toString();
             String updated_at = rs.getTimestamp("updated_at").toString();
-            int total_count = rs.getInt("total_count");
 
             // Board 객체 생성
             BoardModel board = new BoardModel();
@@ -104,7 +108,6 @@ public class BoardService {
             board.setViewCount(view_cnt);
             board.setCreatedAt(created_at);
             board.setUpdatedAt(updated_at);
-            board.setTotalCount(total_count);
 
             // 리스트에 Board 객체 추가
             listBoardModel.add(board);

@@ -1,4 +1,5 @@
 <%@ page import="com.study.board.Board" %>
+<%@ page import="com.study.util.DateUtil" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.study.model.BoardModel" %>
 <%@ page import="java.util.Objects" %>
@@ -16,57 +17,52 @@
   </div>
 
   <script type="text/javascript" defer>
-    const dateFormat = "yy-mm-dd";
+    // DATE Format
+    const DATE_FORMAT = "yy-mm-dd";
     const dateFormatter = (date)=>{
       return date.toISOString().split('T')[0];
     }
-  </script>
 
-  <script type="text/javascript" defer>
+    // DATE 오늘, 1년전 셋팅
     const now = new Date();
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    //Todo : javascript 말고 그냥 query에 param 가져와서하자
-
+    // url parameter 해석하기
     const setSearchFilter = ()=>{
-      const filter = localStorage.getItem('searchFilter');
-      if (filter !== null){ //localstrage 에 값 있을때
-        localStorage.removeItem('searchFilter');
-        return {
-          keyword: filter.keyword,
-          type: '',
-          startDt: filter.startDt,
-          endDt: filter.endDt
-        };
-      }
+      const url = new URL(window.location);
+      const urlFilter = url.searchParams;
       return {
-        keyword: '',
+        keyword: urlFilter.get('keyword') || '',
         type: '',
-        startDt: dateFormatter(oneYearAgo),
-        endDt: dateFormatter(now)
+        startDt: urlFilter.get('startDt') || dateFormatter(oneYearAgo),
+        endDt: urlFilter.get('endDt') || dateFormatter(now)
       }
     }
 
-
+    const keywordInput = document.querySelector('#keyword');
+    const startDt = document.querySelector('#startDt');
+    const endDt = document.querySelector('#endDt');
+    // filter 초기화
     const searchFilterInit = ()=>{
       const defaultSearchFilter = setSearchFilter();
-      $("#startDt")
-              .datepicker({dateFormat})
+      $(startDt)
+              .datepicker({dateFormat:DATE_FORMAT})
               .datepicker("setDate", defaultSearchFilter.startDt);
 
-      $("#endDt")
-              .datepicker({dateFormat})
+      $(endDt)
+              .datepicker({dateFormat:DATE_FORMAT})
               .datepicker("setDate", defaultSearchFilter.endDt);
 
-      const input = document.getElementById('keyword');
+      keywordInput.value = defaultSearchFilter.keyword || '';
+    }
 
-      input.value = defaultSearchFilter.keyword || '';
+    // search 이벤트 초기화
+    const searchEventInit = ()=>{
+      document.querySelector('#sr-button').addEventListener('click', goSearch);
 
-      document.getElementById('sr-button').addEventListener('click', goSearch);
-
-      input.focus();
-      input.addEventListener('keyup', function (e) {
+      keywordInput.focus();
+      keywordInput.addEventListener('keyup', function (e) {
         e.preventDefault();
 
         if ( e.keyCode === 13) {
@@ -75,7 +71,7 @@
       })
     }
 
-    function goSearch(){
+    const goSearch = ()=>{
       const url = new URL(window.location.href);
       url.searchParams.set('keyword', document.getElementById('keyword').value.toString());
       url.searchParams.set('startDt', document.getElementById('startDt').value.toString());
@@ -85,7 +81,9 @@
 
     const init = ()=>{
       searchFilterInit();
+      searchEventInit();
     }
+
     window.addEventListener('load', init);
   </script>
 
@@ -93,18 +91,35 @@
     Board board = new Board();
 
     List<BoardModel> boardList;
-//      request.setCharacterEncoding("utf-8");
-    String keyword = request.getParameter("keyword");
+    // request.setCharacterEncoding("utf-8");
+
+    // 검색조건 설정하기
+    String keyword    = request.getParameter("keyword");
+    String startDt    = request.getParameter("startDt");
+    String endDt      = request.getParameter("endDt");
+    keyword = (keyword == null || keyword.trim().isEmpty())
+            ? ""
+            : keyword.trim();
+    startDt = (startDt == null || startDt.trim().isEmpty())
+            ? DateUtil.getToday()
+            : startDt.trim();
+    endDt   = (endDt == null || endDt.trim().isEmpty())
+            ? DateUtil.getToday()
+            : endDt.trim();
+
+    // Paging
+    String pagingNum  = request.getParameter("pagingNow");
+    String pagingCnt  = request.getParameter("paging");
+
+//    out.println("keyword : ");
+//    out.println(keyword);
+//    out.println("<br>startDt : ");
+//    out.println(startDt);
+//    out.println("<br>endDt : ");
+//    out.println(endDt);
 
     try {
-      if ( keyword == null || keyword.trim().isEmpty() ){
-        //전체
-        boardList = board.getBoardList();
-      }else{
-        //검색
-        boardList = board.getBoardList(keyword.trim());
-      }
-
+      boardList = board.getBoardList(keyword, startDt, endDt, 1);
     } catch (Exception e) {
       boardList = null;
     }
@@ -128,11 +143,10 @@
     </thead>
     <tbody>
     <%
-      if (boardList == null || boardList.isEmpty()){
+      if (boardList.isEmpty()){
         out.println("<tr><td colspan=5>데이터가 없습니다.</td></tr>");
       } else {
         for (BoardModel boardItem : boardList) {
-
           String title = boardItem.getTitle().length() > 80 ? boardItem.getTitle().substring(0, 80) + "..." : boardItem.getTitle();
           String UpdateAt = Objects.equals(boardItem.getCreatedAt(), boardItem.getUpdatedAt()) ? "-" : boardItem.getUpdatedAt();
 
@@ -169,15 +183,7 @@
     </div>
   </div>
 <script type="text/javascript" defer>
-// const pagingWrap = document.querySelector('.paging');
-// pagingWrap.addEventListener('click', function (e) {
-//   if (e.target.classList.contains('active')) {
-//     return;
-//   }
-//   const active = pagingWrap.querySelector('.active');
-//   active.classList.remove('active');
-//   e.target.classList.add('active');
-// });
+
 </script>
 
 <jsp:include page="/common/footer.jsp" />
