@@ -1,4 +1,5 @@
 <%@ page import="com.study.board.Board" %>
+<%@ page import="com.study.board.Category" %>
 <%@ page import="com.study.util.CommonUtil" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.study.model.BoardModel" %>
@@ -6,14 +7,18 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="com.study.Constants" %>
 <%@ page import="com.study.model.PagingModel" %>
+<%@ page import="com.study.model.CategoryModel" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <jsp:include page="/common/header.jsp" />
 
   <%
     Board board = new Board();
-
     Map<String, Object> result;
+
+    Category category = new Category();
+    List<CategoryModel> categories;
 
     // request.setCharacterEncoding("utf-8");
     // 검색조건 설정하기
@@ -21,6 +26,7 @@
     String startDt     = request.getParameter("startDt");
     String endDt       = request.getParameter("endDt");
     String currentPage = request.getParameter("currentPage");
+    String type        = request.getParameter("type");
 
     keyword = (keyword == null || keyword.trim().isEmpty())
             ? ""
@@ -34,6 +40,9 @@
     currentPage = (currentPage == null || currentPage.trim().isEmpty())
             ? "1"
             : currentPage;
+    type = (type == null || type.trim().isEmpty())
+            ? ""
+            : type;
 
     // paging
     int intCurrentPage;
@@ -43,7 +52,7 @@
     intCurrentPage = Integer.parseInt(currentPage);
 
     try {
-      result = board.getBoardList(keyword, startDt, endDt, intCurrentPage);
+      result = board.getBoardList(keyword, startDt, endDt, intCurrentPage, type);
     } catch (Exception e) {
 //      e.printStackTrace();
       result = null;
@@ -54,6 +63,13 @@
     PagingModel paging = (PagingModel) Objects.requireNonNull(result).get("boardPaging");
     totalCnt = paging.getTotalCnt();
     totalPage = paging.getTotalPage();
+
+      try {
+          categories = category.getCategoryList();
+      } catch (Exception e) {
+          categories = null;
+          throw new RuntimeException(e);
+      }
   %>
 
 <div class="searchbar">
@@ -62,6 +78,21 @@
     <input type="text" class="input-datepicker" id="startDt" value="<%=startDt%>" />~
     <input type="text" class="input-datepicker" id="endDt"  value="<%=endDt%>"/>
   </div>
+  <select class="select" id="categorySelect">
+    <option value="">전체</option>
+
+    <%
+      if (categories.isEmpty()){
+        out.println("<option>카테고리가 없습니다.</option>");
+      } else {
+        for (CategoryModel categoryItem : categories) {
+          String displayValue = String.valueOf(categoryItem.getId());
+          String displayName = categoryItem.getName();
+          out.println("<option value='" + displayValue + "'>" + displayName + "</option>");
+        }
+      }
+    %>
+  </select>
   <input type="text" id="keyword" placeholder="검색어를 입력해 주세요. (제목 + 작성자 + 내용)" value="<%=keyword%>"/>
   <button id="sr-button" class="btn-sr" type="button">검색</button>
 </div>
@@ -84,7 +115,7 @@
     const urlFilter = url.searchParams;
     return {
       keyword: urlFilter.get('keyword') || '',
-      type: '',
+      type: $('select#categorySelect').val() || '',
       startDt: urlFilter.get('startDt') || <%=endDt%>,
       endDt: urlFilter.get('endDt') || <%=startDt%>,
       currentPage: urlFilter.get('currentPage') || <%=currentPage%>,
@@ -158,8 +189,17 @@
   </div>
 
   <table class="table-list">
+    <colgroup>
+      <col style="width: 15%;" />
+      <col style="" />
+      <col style="width: 10%" />
+      <col style="width: 10%" />
+      <col style="width: 16%" />
+      <col style="width: 16%" />
+    </colgroup>
     <thead>
     <tr>
+      <th>카테고리</th>
       <th>제목</th>
       <th>작성자</th>
       <th>조회수</th>
@@ -169,7 +209,6 @@
     </thead>
     <tbody>
     <%
-
       if (boardList.isEmpty()){
         out.println("<tr><td colspan=5>데이터가 없습니다.</td></tr>");
       } else {
@@ -178,6 +217,7 @@
           String UpdateAt = Objects.equals(boardItem.getCreatedAt(), boardItem.getUpdatedAt()) ? "-" : boardItem.getUpdatedAt();
 
           out.println("<tr>");
+          out.println("<td>" + boardItem.getCategoryName() + "</td>");
           out.println("<td><a href=/board/detail.jsp?key="+ boardItem.getId() +">" + title + "</a></td>");
           out.println("<td>" + boardItem.getWriter() + "</td>");
           out.println("<td>" + CommonUtil.formatWithComma(boardItem.getViewCount()) + "</td>");
@@ -212,33 +252,13 @@
       <button class="last">&gt;&gt;</button>
     </div>
     <div class="right">
-<%--      <a href="insert.jsp" class="btn btn-default">등록</a>--%>
+      <a href="insert.jsp" class="btn btn-default">등록</a>
     </div>
   </div>
 <script type="text/javascript" defer>
   const totalCount = <%=totalCnt%> || 1;
   const currentPage = <%=currentPage%> || 1;
   const pagingList = <%=totalPage%>;
-  //
-  // const setUiPaging = ()=>{
-  //   console.log('pagingList', pagingList)
-  //   const $paging = document.querySelector('.paging');
-  //   $paging.innerHTML = '';
-  //
-  //   const appendLi = (num)=>{
-  //     const li = document.createElement('li');
-  //     if ( num === currentPage ) {
-  //       li.innerHTML = '<button class="active">'+num+'</button>';
-  //     }
-  //     li.innerHTML = '<button>'+num+'</button>';
-  //     console.log(li);
-  //     $paging.appendChild(li);
-  //   }
-  //
-  //   for (let i = 1; i <= pagingList; i++) {
-  //     appendLi(i);
-  //   }
-  // }
 
   const pagingBtnLink = (btn)=>{
 
@@ -263,7 +283,7 @@
 
           break;
         case 'next':
-          if ( currentPage+1 >= pagingList ) {
+          if ( currentPage+1 > pagingList ) {
             return;
           }
           console.log('currentPage', currentPage, pagingList)

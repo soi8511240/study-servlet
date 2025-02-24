@@ -15,24 +15,23 @@ public class Board {
     }
 
     static String pastKeyword;
-    public Map<String, Object> getBoardList(String keyword, String StartDt, String endDt, int paginationCurrentPage) throws Exception {
+    public Map<String, Object> getBoardList(String keyword, String StartDt, String endDt, int paginationCurrentPage, String category) throws Exception {
         Map<String, Object> mapObject = new HashMap<>();
 
         int currentPage;
         currentPage = (pastKeyword != null && pastKeyword.equals(keyword))? paginationCurrentPage: 1;
-        System.out.println("pastKeyword : " + pastKeyword);
-        System.out.println("keyword : " + keyword);
-        System.out.println("currentPage : " + currentPage);
         pastKeyword = keyword;
 
-        mapObject.put("boardPaging", boardService.getPaging(keyword, StartDt, endDt, currentPage));
-        mapObject.put("boardList", boardService.getList(keyword, StartDt, endDt, currentPage));
-
+        mapObject.put("boardPaging", boardService.getPaging(keyword, StartDt, endDt, currentPage, category));
+        mapObject.put("boardList", boardService.getList(keyword, StartDt, endDt, currentPage, category));
 
         return mapObject;
-
-//        return boardService.getList(keyword, StartDt, endDt, paginationCurrentPage);
     }
+
+    public int insertBoard(BoardModel boardModel) throws Exception {
+        return boardService.insertBoard(boardModel);
+    }
+
 
 //    public Map<String, Object> getBoardList(String keyword, String StartDt, String endDt, int paginationCurrentPage) throws Exception {
 //        Map<String, Object> mapObject = new HashMap<>();

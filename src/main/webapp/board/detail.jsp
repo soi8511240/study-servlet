@@ -37,7 +37,7 @@
 <div class="btns-foot">
     <div class="left"></div>
     <div class="right">
-        <a href="list.jsp" class="btn btn-default">목록</a>
+        <a href="list.jsp" class="btn btn-default primary">목록</a>
     </div>
 </div>
 <jsp:include page="/common/footer.jsp" />
